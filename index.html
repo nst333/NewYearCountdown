@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Year</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="day">
+            <h1 id="day">000</h1>
+            <span>일</span>
+        </div>
+        <div class="hour">
+            <h1 id="hour">000</h1>
+            <span>시</span>
+        </div>
+        <div class="minute">
+            <h1 id="minute">000</h1>
+            <span>분</span>
+        </div>
+        <div class="second">
+            <h1 id="second">000</h1>
+            <span>초</span>
+        </div>
+        <div class="ms">
+            <h1 id="ms">000</h1>
+        </div>
+    </div>
+
+    <script>
+        const targetDate = new Date((new Date().getFullYear() + 1) +'-01-01T00:00:00').getTime()
+        let isFired = false; 
+
+        function createConfetti() {
+            const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ffffff'];
+            const confettiCount = 50; // 한 번에 생성되는 폭죽 양 대폭 증가
+
+            for (let i = 0; i < confettiCount; i++) {
+                const el = document.createElement('div');
+                el.className = 'confetti';
+                document.body.appendChild(el);
+
+                // 시작 위치: 화면 위쪽 랜덤 (y값은 -20으로 숨김)
+                const startX = Math.random() * window.innerWidth;
+                const startY = -20;
+                
+                // 도착 위치: 화면 아래쪽 랜덤
+                const destinationX = (Math.random() - 0.5) * 500; // 좌우로 퍼지는 정도
+                const destinationY = window.innerHeight + Math.random() * 200; // 바닥 너머까지 하강
+
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                const size = Math.random() * 8 + 5; // 크기 다양화 (5px ~ 13px)
+
+                Object.assign(el.style, {
+                    backgroundColor: color,
+                    width: `${size}px`,
+                    height: `${size}px`,
+                    left: `${startX}px`,
+                    top: `${startY}px`,
+                    position: 'absolute',
+                    zIndex: '999',
+                    pointerEvents: 'none',
+                    borderRadius: Math.random() > 0.5 ? '50%' : '0px' // 원형과 사각형 혼합
+                });
+
+                // 애니메이션: 위에서 아래로 떨어지며 회전
+                const animation = el.animate([
+                    { transform: 'translate(0, 0) rotate(0deg)', opacity: 1 },
+                    { transform: `translate(${destinationX}px, ${destinationY}px) rotate(${Math.random() * 1000}deg)`, opacity: 0 }
+                ], {
+                    duration: 2000 + Math.random() * 3000, // 2~5초 사이 랜덤 속도
+                    easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+                });
+
+                animation.onfinish = () => el.remove();
+            }
+        }
+
+        // 무한 폭죽 실행 함수
+        function startInfiniteConfetti() {
+            // 0.2초마다 50개씩 생성 (초당 250개)
+            setInterval(createConfetti, 200); 
+        }
+
+        function getRemainingTime() {
+            const now = new Date().getTime()
+            const diff = targetDate - now
+
+            if (diff <= 0) {
+                document.getElementById("day").textContent = "0";
+                document.getElementById("hour").textContent = "0";
+                document.getElementById("minute").textContent = "0";
+                document.getElementById("second").textContent = "00";
+                document.getElementById("ms").textContent = "000";
+
+                if (!isFired) {
+                    isFired = true;
+                    startInfiniteConfetti(); // 무한 폭죽 시작
+                    clearInterval(timer); // 카운트다운 타이머는 종료
+                }
+                return;
+            }
+            
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000)
+            const milliseconds = Math.floor(diff % 1000)
+
+            document.getElementById("day").textContent = days
+            document.getElementById("hour").textContent = hours
+            document.getElementById("minute").textContent = minutes
+            document.getElementById("second").textContent = String(seconds).padStart(2, '0')
+            document.getElementById("ms").textContent = String(milliseconds).padStart(3, '0')
+        }
+
+        const timer = setInterval(() => {
+            getRemainingTime();
+        }, 1)
+    </script>
+</body>
+</html>
